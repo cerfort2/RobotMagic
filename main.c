@@ -1,8 +1,15 @@
 #include <stdint.h>
-#include "msp.h"
-#include "../inc/clock.h"
-#include "../inc/LaunchPad.h"
 #include "../inc/Texas.h"
+
+#include "msp.h"
+#include "..\inc\bump.h"
+#include "..\inc\Reflectance.h"
+#include "..\inc\Clock.h"
+//#include "..\inc\SysTickInts.h"
+#include "..\inc\CortexM.h"
+#include "..\inc\LaunchPad.h"
+#include "..\inc\FlashProgram.h"
+#include "..\inc\Motorsimple.h"
 
 
 // Linked data structure
@@ -48,26 +55,37 @@ void Port2_Init(){
     P2->OUT = 0x00;                         // all LEDs off
 }
 
-
+uint8_t reflectancein;
 int main(void){
   Clock_Init48MHz();
-  LaunchPad_Init();
-  SysTick_Init();
-  Clock_Init48MHz();
+  //SysTick_Init(); set up interrupts
   Port2_Init();
+  Motor_InitSimple();
+    SysTick_Init(480000,2);  // set up SysTick for 100 Hz interrupts
+    EnableInterrupts();
+    Reflectance_Init(); //initialize pins 5.3,9.2,7.0-7
+    Bump_Init();
 
-  State_t *pt; 
+  State_t *pt;
   pt=center;          //initial state
 
   while(1){
+
     P2->OUT=pt->port2out;
     Clock_Delay1ms(pt->delay);   // wait
 
-    input1 = ((P1->IN>>1)&~0xFE)^0x1;  //read input
-    input2 = ((P1->IN>>4)^0xF)&~0xE;
-    input = (input2 <<1) | input1;
 
-    pt = pt->next[input];       // next depends on input and state
+    reflectancein=Reflectance_Read(1000);
+
+    if(reflectancein<0x08){
+      pt=pt->next[2];
+    }
+    else if(reflectancein>0x1F){
+        pt=pt->next[1];
+    }
+    else{
+        pt=pt->next[0];
+    }
 
   }
 }

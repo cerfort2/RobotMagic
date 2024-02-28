@@ -34,9 +34,9 @@ typedef const struct State State_t;
 #define PINK      0x05      //s2=dime
 
 State_t fsm[3]={
-  {WHITE, 3000, {center,left,right}},  // center
-  {RED, 3000, {center,left,right}},  // left
-  {BLUE, 3000, {center,left,right}},   // right
+  {WHITE, 1, {center,left,right}},  // center
+  {RED, 1, {center,left,right}},  // left
+  {BLUE, 1, {center,left,right}},   // right
 };
 
 uint32_t Input;
@@ -56,11 +56,12 @@ void Port2_Init(){
 }
 
 uint8_t reflectancein;
+int32_t position=0;
 int main(void){
   Clock_Init48MHz();
   //SysTick_Init(); set up interrupts
-  Port2_Init();
-  Motor_InitSimple();
+    Port2_Init();
+    Motor_InitSimple();
     SysTick_Init(480000,2);  // set up SysTick for 100 Hz interrupts
     EnableInterrupts();
     Reflectance_Init(); //initialize pins 5.3,9.2,7.0-7
@@ -76,15 +77,33 @@ int main(void){
 
 
     reflectancein=Reflectance_Read(1000);
+    position=Reflectance_Position(reflectancein);
 
-    if(reflectancein<0x08){
-      pt=pt->next[2];
+
+    if(reflectancein<0x08){ //right bits are on->go right
+      pt=pt->next[1];
+
     }
-    else if(reflectancein>0x1F){
-        pt=pt->next[1];
+    else if(reflectancein>0x1F){ //left bits are on->go left
+        pt=pt->next[2];
+
     }
     else{
         pt=pt->next[0];
+
+    }
+
+
+    if(pt==center){
+        Motor_ForwardSimple(1000, pt->delay);
+
+    }
+    else if(pt==left){
+           Motor_RightSimple(1000, pt->delay);
+
+       }
+    else{
+        Motor_LeftSimple(1000, pt->delay);
     }
 
   }

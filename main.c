@@ -13,12 +13,9 @@ struct State {
 };
 
 typedef const struct State State_t;
-
 #define center    &fsm[0]
 #define left      &fsm[1]   //drive right
 #define right     &fsm[2]   //drive left
-
-
 
 #define DARK      0x0
 #define RED       0x01      //S5=error
@@ -29,15 +26,12 @@ typedef const struct State State_t;
 #define SKYBLUE   0x06
 #define PINK      0x05      //s2=dime
 
-// student starter code
-
 State_t fsm[3]={
-  {WHITE, 3000, { center,left,right}},  // zero
-  {red, 3000, { center,left,right}},  // left
-  {BLUE, 3000, { center,left,right }},   // right
+  {WHITE, 3000, {center,left,right}},  // center
+  {RED, 3000, {center,left,right}},  // left
+  {BLUE, 3000, {center,left,right}},   // right
 };
 
-State_t *Spt;  // pointer to the current state
 uint32_t Input;
 uint32_t Output;
 /*Run FSM continuously
@@ -46,12 +40,7 @@ uint32_t Output;
 3) Input (LaunchPad buttons)
 4) Next depends on (Input,State)
  */
-
-void Traffic_init(){
-
-    
-
-
+void Port2_Init(){
     P2->SEL0 = 0x00;
     P2->SEL1 = 0x00;                        // configure P2.2-P2.0 as GPIO
     P2->DS = 0x07;                          // make P2.2-P2.0 high drive strength
@@ -62,20 +51,16 @@ void Traffic_init(){
 
 int main(void){
   Clock_Init48MHz();
+  LaunchPad_Init();
+  SysTick_Init();
+  Clock_Init48MHz();
+  Port2_Init();
 
-  State_t *pt;
-
-  uint32_t input1;
-  uint32_t input2;
-  uint32_t input;
-
-  Traffic_init();   //initialize ports
-  pt=zero;          //initial state
+  State_t *pt; 
+  pt=center;          //initial state
 
   while(1){
-
     P2->OUT=pt->port2out;
-
     Clock_Delay1ms(pt->delay);   // wait
 
     input1 = ((P1->IN>>1)&~0xFE)^0x1;  //read input

@@ -24,6 +24,11 @@ typedef const struct State State_t;
 #define left      &fsm[1]   //drive right
 #define right     &fsm[2]   //drive left
 
+
+//non 90 degree turns
+//90 degree turn state
+
+
 #define DARK      0x0
 #define RED       0x01      //S5=error
 #define GREEN     0x02      //S4=purchase
@@ -57,13 +62,14 @@ void Port2_Init(){
 
 uint8_t reflectancein;
 int32_t position=0;
+
 int main(void){
   Clock_Init48MHz();
   //SysTick_Init(); set up interrupts
     Port2_Init();
     Motor_InitSimple();
     SysTick_Init(480000,2);  // set up SysTick for 100 Hz interrupts
-    EnableInterrupts();
+   // EnableInterrupts();
     Reflectance_Init(); //initialize pins 5.3,9.2,7.0-7
     Bump_Init();
 
@@ -95,15 +101,15 @@ int main(void){
 
 
     if(pt==center){
-        Motor_ForwardSimple(1000, pt->delay);
+        Motor_ForwardSimple(4000, pt->delay);
 
     }
     else if(pt==left){
-           Motor_RightSimple(1000, pt->delay);
+           Motor_RightSimple(4000, pt->delay);
 
        }
     else{
-        Motor_LeftSimple(1000, pt->delay);
+        Motor_LeftSimple(4000, pt->delay);
     }
 
   }

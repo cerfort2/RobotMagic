@@ -15,14 +15,34 @@
 // Linked data structure
 struct State {
   uint32_t port2out;                // 2-bit output
-  uint32_t delay;              // time to delay in 1ms
-  const struct State *next[3]; // Next if 2-bit input is 0-3 (4 inputs)
+  uint32_t delay;              // time to delay in 1ms // Next if 2-bit input is 0-3 (4 inputs)
 };
 
+State* next[16] = {};
+
 typedef const struct State State_t;
-#define center    &fsm[0]
-#define left      &fsm[1]   //drive right
-#define right     &fsm[2]   //drive left
+#define lost    &fsm[0] //lost
+#define non1      &fsm[1] //nothing
+#define veryLeft     &fsm[2] //
+#define veryRight &fsm[3]
+#define middleRight     &fsm[4] //
+#define middle    &fsm[5] //
+#define middleLeft    &fsm[6] //
+#define kindaRight    &fsm[7] //
+#define kindaleft    &fsm[8] //
+#define kindaRightMiddle     &fsm[9] //
+#define non2     &fsm[10] //
+#define kindaLeftMiddle     &fsm[11] //
+#define bigRight     &fsm[12] //
+#define bigLeft     &fsm[13] //
+#define non3     &fsm[14] //
+#define bigMiddle     &fsm[15] //
+#define big16 &fsm[16]
+#define big17 &fsm[17]
+#define big18 &fsm[18]
+#define big19 &fsm[19]
+#define big20 &fsm[20]
+
 
 
 //non 90 degree turns
@@ -38,10 +58,23 @@ typedef const struct State State_t;
 #define SKYBLUE   0x06
 #define PINK      0x05      //s2=dime
 
-State_t fsm[3]={
-  {WHITE, 1, {center,left,right}},  // center
-  {RED, 1, {center,left,right}},  // left
-  {BLUE, 1, {center,left,right}},   // right
+State_t fsm[16]={
+  {WHITE, 1},  // center
+  {RED, 1},  // left
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1},
+  {BLUE, 1}// right
 };
 
 uint32_t Input;
@@ -84,6 +117,7 @@ int main(void){
 
     reflectancein=Reflectance_Read(1000);
     position=Reflectance_Position(reflectancein);
+    pt = next[index];
 
 
     if(reflectancein<0x08){ //right bits are on->go right

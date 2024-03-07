@@ -39,15 +39,15 @@ typedef const struct State State_t;
 #define PINK      0x05
 
 State_t fsm[6]={
-  {GREEN, 4000, 1, {lostmiddle,left,right,center}},  //center
-  {RED, 4000, 1, {lostleft,left,right,center}},  //left
-  {BLUE, 4000, 1, {lostright,left,right,center}}, //right
+  {GREEN, 3800, 1, {lostmiddle,left,right,center}},  //center
+  {RED, 5000, 1, {lostleft,left,right,center}},  //left
+  {BLUE, 5000, 1, {lostright,left,right,center}}, //right
 
 
   //Lost States
-  {WHITE, 5000, 1, {lostmiddle,left,right,center}}, //lost middle
-  {PINK, 5000, 1, {lostright,left,right,center}}, //lostright
-  {SKYBLUE, 5000, 1, {lostleft,left,right,center}} //lostleft
+  {WHITE, 6000, 1, {lostmiddle,left,right,center}}, //lost middle
+  {PINK, 6000, 1, {lostright,left,right,center}}, //lostright
+  {SKYBLUE, 6000, 1, {lostleft,left,right,center}} //lostleft
 
 
 };
@@ -60,6 +60,13 @@ uint32_t Output;
 3) Input (LaunchPad buttons)
 4) Next depends on (Input,State)
  */
+
+void WaitForResetPress(void) {
+    while (P1->IN & 0x02) {
+        // Loop until the button is pressed
+        // If the button is active low, this waits until the bit is cleared
+    }
+}
 
 void Port2_Init(){
     P2->SEL0 = 0x00;
@@ -75,9 +82,16 @@ void SysTick_Handler(void){ // every 1ms
   // write this as part of Lab 10
 
     bumpread=Bump_Read();
+
 }
 
-
+void ResetButton_Init(void) {
+    P1->SEL0 &= ~0x02;   // Configure P1.1 as GPIO
+    P1->SEL1 &= ~0x02;
+    P1->DIR &= ~0x02;    // P1.1 set as input
+    P1->REN |= 0x02;     // Enable pull-up/pull-down resistors
+    P1->OUT |= 0x02;     // Select pull-up mode
+}
 uint8_t reflectancein;
 int main(void){
     Clock_Init48MHz();
@@ -90,6 +104,7 @@ int main(void){
     EnableInterrupts();
     Reflectance_Init(); //initialize pins 5.3,9.2,7.0-7
     Bump_Init();
+    WaitForResetPress();
 
     State_t *pt;
     uint8_t leftBits, rightBits, centerBits;
@@ -144,22 +159,11 @@ int main(void){
         }
 
 
-        // if (reflectancein == 0x00){
+        if (bumpread != 0){
+                    Motor_StopSimple();
+                    break;
+                }
 
-        //     pt = pt -> next[];
-
-        // }
-        // else if(reflectancein<0x08 && reflectancein > 0x00)
-        // {
-        //     pt = pt -> next[2];
-
-        // }
-        // else if(reflectancein>0x1F){
-        //     pt=pt->next[1];
-        // }
-        // else{
-        //     pt=pt->next[0];
-        // }
 
 
   }

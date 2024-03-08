@@ -38,6 +38,7 @@ typedef const struct State State_t;
 #define SKYBLUE   0x06
 #define PINK      0x05
 
+//RIGHT NOW THE DUTY CYCLES ARE CHANGED SO THAT THE ROBOT CAN HANDLE TIGHT TURNS
 State_t fsm[6]={
   {GREEN, 3800, 1, {lostmiddle,left,right,center}},  //center
   {RED, 5000, 1, {lostleft,left,right,center}},  //left

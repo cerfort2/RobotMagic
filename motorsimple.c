@@ -56,6 +56,26 @@ void Motor_StopSimple(void){
   P2->OUT &= ~0xC0;   // off
   P3->OUT &= ~0xC0;   // low current sleep mode
 }
+
+void Motor_StopForTime(uint32_t time){
+// Stops both motors, puts driver to sleep
+// Returns right away
+
+
+    for(uint32_t i=0; i<time; i=i+1){
+        P2->OUT &= ~0xC0;   // off
+        P3->OUT &= ~0xC0;   // low current sleep mode
+
+  }
+
+
+
+
+
+}
+
+
+
 void Motor_ForwardSimple(uint16_t duty, uint32_t time){
 // Drives both motors forward at duty (100 to 9900)
 // Runs for time duration (units=10ms), and then stops
@@ -72,8 +92,6 @@ void Motor_ForwardSimple(uint16_t duty, uint32_t time){
       SysTick_Wait10ms(10000-duty);
 
   }
-
-
   // write this as part of Lab 12
 }
 void Motor_BackwardSimple(uint16_t duty, uint32_t time){
